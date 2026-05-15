@@ -1,6 +1,32 @@
-.Rproj.user
 .Rhistory
 .RData
-.httr-oauth
-.DS_Store
-.quarto
+.Ruserdata
+.Rproj.user/
+
+# Build artefacts
+*.tar.gz
+*.Rcheck/
+
+# Documentation outputs
+docs/
+
+# Local/dev outputs
+*.html
+*.png
+*.jpg
+*.jpeg
+*.tif
+*.tiff
+
+# Local spatial/data artefacts
+*.qs2
+*.gpkg
+*.duckdb
+*.sqlite
+*.parquet
+
+# ESRI geodatabases
+*.gdb/
+
+# Local dev data
+dev/02_geometry_checks/data_lga_test_polygons/

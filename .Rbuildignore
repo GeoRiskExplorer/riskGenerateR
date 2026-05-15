@@ -1,4 +1,7 @@
-^riskGenerateR\.Rproj$
+^.*\.Rproj$
 ^\.Rproj\.user$
-^LICENSE\.md$
 ^README\.Rmd$
+^docs$
+^dev$
+^\.github$
+^data-raw$

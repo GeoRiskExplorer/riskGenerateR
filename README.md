@@ -5,16 +5,19 @@
 
 `riskGenerateR` generates synthetic spatial risk datasets for testing,
 development, demonstrations, QA workflows, reproducible examples,
-and spatial risk package development.
+dashboards, and spatial risk package development.
 
 The package is designed as part of the GeoRisk Verse ecosystem and
 currently focuses on generating synthetic `sf` spatial objects.
+
+---
 
 ## Current features
 
 - Study area generation
 - Example bounding boxes
 - Random point generation
+- Inside/outside event generation
 - Square grids
 - Hex tessellations
 - Irregular polygon generation
@@ -22,17 +25,25 @@ currently focuses on generating synthetic `sf` spatial objects.
 - Synthetic exposure and event counts
 - Scenario generators
 - Spatial QA summaries
+- CRS-aware geometry generation workflows
+
+---
 
 ## Installation
 
-``` r
+```r
 # development version
-# remotes::install_github("GeoRiskExplorer/riskGenerateR")
+# remotes::install_github(
+#   "GeoRiskExplorer/riskGenerateR",
+#   build_vignettes = FALSE
+# )
 ```
+
+---
 
 ## Example
 
-``` r
+```r
 library(riskGenerateR)
 library(mapview)
 
@@ -51,6 +62,8 @@ mapview(
   )
 ```
 
+---
+
 ## Package philosophy
 
 `riskGenerateR` focuses on generating synthetic spatial datasets only.
@@ -64,7 +77,10 @@ Spatial analysis workflows such as:
 - aggregation
 - DuckDB integration
 
-are intended for companion packages within the GeoRisk Verse ecosystem.
+are intentionally handled by companion packages within the
+GeoRisk Verse ecosystem.
+
+---
 
 ## Current object support
 
@@ -80,6 +96,21 @@ Future support may include:
 - raster
 - non-spatial join tables
 
+---
+
+## Design principles
+
+- generation-focused
+- lightweight dependencies
+- reproducible outputs
+- robust CRS handling
+- topology-aware workflows
+- compatible with downstream spatial analysis packages
+
+---
+
 ## Development status
 
 Early development version.
+
+The package is currently under active development and the API may change.

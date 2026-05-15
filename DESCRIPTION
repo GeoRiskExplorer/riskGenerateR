@@ -6,7 +6,7 @@ Authors@R:
       given = "Robert",
       family = "Andronaco",
       role = c("aut", "cre"),
-      email = "your_email_here"
+      email = "data@georiskanalysis.com"
     )
 Description: 
     Generate synthetic spatial risk datasets for testing,
@@ -18,7 +18,6 @@ Description:
 License: MIT + file LICENSE
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
-RoxygenNote: 7.3.2
 Imports:
     dplyr,
     sf
@@ -28,3 +27,4 @@ Suggests:
     qs2,
     testthat (>= 3.0.0)
 Config/testthat/edition: 3
+Config/roxygen2/version: 8.0.0
