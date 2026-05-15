@@ -141,9 +141,16 @@ rg_polygons <- function(
       geometry
     )
 
-  if (return_input_crs) {
-    poly_units <- sf::st_transform(poly_units, input_crs)
-  }
+if (return_input_crs) {
+  poly_units <- sf::st_transform(poly_units, input_crs)
+  poly_units <- sf::st_make_valid(poly_units)
 
-  poly_units
+  poly_units <- suppressWarnings(
+    sf::st_collection_extract(poly_units, "POLYGON")
+  )
+
+  poly_units <- poly_units[!sf::st_is_empty(poly_units), ]
+}
+
+poly_units
 }
