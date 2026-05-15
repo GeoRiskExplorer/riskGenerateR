@@ -16,6 +16,11 @@ test_that("rg_hex returns polygon cells with default overhang", {
   expect_true(all(sf::st_geometry_type(hex) %in% c("POLYGON", "MULTIPOLYGON")))
   expect_equal(sf::st_crs(hex)$epsg, 7851)
   expect_true("hex_id" %in% names(hex))
+
+  expect_true("area_m2" %in% names(hex))
+expect_true("area_km2" %in% names(hex))
+expect_true(all(hex$area_m2 > 0))
+expect_true(all(hex$area_km2 > 0))
 })
 
 test_that("rg_hex supports clipped output", {
@@ -51,3 +56,4 @@ test_that("rg_hex rejects invalid cell_size", {
     "cell_size must be greater than 0"
   )
 })
+

@@ -57,5 +57,8 @@ rg_grid <- function(
     grid_sf$grid_id <- sprintf("grid_%06d", seq_len(nrow(grid_sf)))
   }
 
-  grid_sf
+  grid_sf$area_m2 <- as.numeric(sf::st_area(grid_sf))
+  grid_sf$area_km2 <- round(grid_sf$area_m2 / 1e6, 4)
+
+ grid_sf
 }

@@ -57,5 +57,8 @@ rg_hex <- function(
     hex_sf$hex_id <- sprintf("hex_%06d", seq_len(nrow(hex_sf)))
   }
 
-  hex_sf
+  hex_sf$area_m2 <- as.numeric(sf::st_area(hex_sf))
+hex_sf$area_km2 <- round(hex_sf$area_m2 / 1e6, 4)
+
+hex_sf
 }

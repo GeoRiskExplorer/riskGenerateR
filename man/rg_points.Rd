@@ -9,7 +9,9 @@ rg_points(
   n = 100,
   inside_pct = 0,
   outside_distance = 1000,
-  seed = NULL
+  seed = NULL,
+  processing_crs = NULL,
+  return_input_crs = TRUE
 )
 }
 \arguments{
@@ -19,9 +21,13 @@ rg_points(
 
 \item{inside_pct}{Proportion of points generated inside the study area. Defaults to 0.}
 
-\item{outside_distance}{Distance in map units used to expand the outside generation area.}
+\item{outside_distance}{Distance in map units of the processing CRS.}
 
 \item{seed}{Optional random seed.}
+
+\item{processing_crs}{Optional projected CRS used for point generation.}
+
+\item{return_input_crs}{Logical. Return output to the input CRS? Defaults to TRUE.}
 }
 \value{
 An sf point object.

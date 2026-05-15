@@ -16,6 +16,11 @@ test_that("rg_grid returns square polygon cells with default overhang", {
   expect_true(all(sf::st_geometry_type(grid) %in% c("POLYGON", "MULTIPOLYGON")))
   expect_equal(sf::st_crs(grid)$epsg, 7851)
   expect_true("grid_id" %in% names(grid))
+
+  expect_true("area_m2" %in% names(grid))
+expect_true("area_km2" %in% names(grid))
+expect_true(all(grid$area_m2 > 0))
+expect_true(all(grid$area_km2 > 0))
 })
 
 test_that("rg_grid supports clipped output", {
@@ -51,3 +56,4 @@ test_that("rg_grid rejects invalid cell_size", {
     "cell_size must be greater than 0"
   )
 })
+

@@ -5,8 +5,10 @@
 #' @param study_area An sf polygon object.
 #' @param n Number of points to generate.
 #' @param inside_pct Proportion of points generated inside the study area. Defaults to 0.
-#' @param outside_distance Distance in map units used to expand the outside generation area.
+#' @param outside_distance Distance in map units of the processing CRS.
 #' @param seed Optional random seed.
+#' @param processing_crs Optional projected CRS used for point generation.
+#' @param return_input_crs Logical. Return output to the input CRS? Defaults to TRUE.
 #'
 #' @return An sf point object.
 #' @export
@@ -15,7 +17,9 @@ rg_points <- function(
   n = 100,
   inside_pct = 0,
   outside_distance = 1000,
-  seed = NULL
+  seed = NULL,
+  processing_crs = NULL,
+  return_input_crs = TRUE
 ) {
   if (!requireNamespace("sf", quietly = TRUE)) {
     stop("Package 'sf' is required.", call. = FALSE)
@@ -33,14 +37,36 @@ rg_points <- function(
     stop("inside_pct must be between 0 and 1.", call. = FALSE)
   }
 
+  input_crs <- sf::st_crs(study_area)
+
+  if (is.na(input_crs)) {
+    stop("study_area must have a CRS for rg_points().", call. = FALSE)
+  }
+
+  if (is.null(processing_crs)) {
+    if (sf::st_is_longlat(study_area)) {
+      processing_crs <- 3857
+      message(
+        "Geographic CRS detected. Using EPSG:3857 as temporary processing CRS. ",
+        "For better local accuracy, supply processing_crs explicitly."
+      )
+    } else {
+      processing_crs <- input_crs
+    }
+  }
+
   if (!is.null(seed)) {
     set.seed(seed)
   }
 
+  study_area_proc <- sf::st_transform(study_area, processing_crs)
+  study_area_proc <- sf::st_make_valid(study_area_proc)
+
+  study_union <- sf::st_union(study_area_proc)
+  study_union <- sf::st_make_valid(study_union)
+
   n_inside <- round(n * inside_pct)
   n_outside <- n - n_inside
-
-  study_union <- sf::st_union(study_area)
 
   inside_pts <- NULL
   outside_pts <- NULL
@@ -76,7 +102,11 @@ rg_points <- function(
     geometry = geom
   )
 
-  sf::st_crs(out) <- sf::st_crs(study_area)
+  sf::st_crs(out) <- sf::st_crs(study_area_proc)
+
+  if (return_input_crs) {
+    out <- sf::st_transform(out, input_crs)
+  }
 
   out
 }
