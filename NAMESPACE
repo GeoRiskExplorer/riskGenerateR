@@ -3,6 +3,7 @@
 S3method(print,rg_summary)
 export(rg_add_risk_attributes)
 export(rg_bbox_example)
+export(rg_example_data)
 export(rg_grid)
 export(rg_hex)
 export(rg_points)
