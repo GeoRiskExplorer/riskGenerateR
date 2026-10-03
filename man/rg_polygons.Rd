@@ -30,11 +30,13 @@ rg_polygons(
 
 \item{processing_crs}{Optional projected CRS used for geometry generation.}
 
-\item{return_input_crs}{Logical. Return output to the input CRS? Defaults to TRUE.}
+\item{return_input_crs}{Logical. Return output to the input CRS?
+Defaults to \code{TRUE}.}
 }
 \value{
 An sf polygon object.
 }
 \description{
-Generate irregular synthetic polygon units
+Generates contiguous irregular polygon units within a supplied study area
+using a seeded fine-grid allocation method.
 }
