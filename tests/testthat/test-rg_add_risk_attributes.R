@@ -49,10 +49,11 @@ test_that("rg_add_risk_attributes adds count attributes to polygons", {
     crs = ex$crs
   )
 
-  grid <- rg_grid(
-    study_area,
-    cell_size = 500
-  )
+grid <- rg_tessellate(
+  study_area,
+  cell_size = 500,
+  shape = "square"
+)
 
   out <- rg_add_risk_attributes(
     grid,

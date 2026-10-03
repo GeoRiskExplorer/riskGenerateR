@@ -20,7 +20,7 @@ rg_polygons(
 
 \item{target_n}{Target number of polygon units.}
 
-\item{cell_size}{Fine grid cell size in map units of the processing CRS.}
+\item{cell_size}{Fine tessellation cell size in coordinate units.}
 
 \item{method}{Polygon generation method. Currently only \code{"seeded_grid"}.}
 
@@ -39,4 +39,8 @@ An sf polygon object.
 \description{
 Generates contiguous irregular polygon units within a supplied study area
 using a seeded fine-grid allocation method.
+}
+\details{
+The function supports both neutral synthetic XY coordinate space and
+study areas with a defined coordinate reference system.
 }

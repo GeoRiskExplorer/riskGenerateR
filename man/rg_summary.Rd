@@ -10,8 +10,15 @@ rg_summary(x)
 \item{x}{An sf object.}
 }
 \value{
-A named list containing summary values.
+An object of class \code{rg_summary}.
 }
 \description{
-Summarise a generated riskGenerateR spatial object
+Provides a compact quality-assurance summary of a spatial object generated
+by riskGenerateR. The summary reports object dimensions, geometry and CRS
+information, geometry validity, and summaries of recognised generated
+attributes when present.
+}
+\details{
+Area values are reported using the units represented by the object's
+existing \code{area} field. No unit conversion is performed.
 }

@@ -2,12 +2,12 @@
 % Please edit documentation in R/rg_points.R
 \name{rg_points}
 \alias{rg_points}
-\title{Generate random points inside and outside a study area}
+\title{Generate random synthetic points}
 \usage{
 rg_points(
   study_area,
   n = 100,
-  inside_pct = 0,
+  inside_pct = 1,
   outside_distance = 1000,
   seed = NULL,
   processing_crs = NULL,
@@ -19,19 +19,26 @@ rg_points(
 
 \item{n}{Number of points to generate.}
 
-\item{inside_pct}{Proportion of points generated inside the study area. Defaults to 0.}
+\item{inside_pct}{Proportion of points generated inside the study area.
+Defaults to \code{1}.}
 
-\item{outside_distance}{Distance in map units of the processing CRS.}
+\item{outside_distance}{Distance beyond the study-area boundary used when
+generating outside points. Units are the coordinate units of neutral
+synthetic XY space or the map units of the processing CRS.}
 
 \item{seed}{Optional random seed.}
 
-\item{processing_crs}{Optional projected CRS used for point generation.}
+\item{processing_crs}{Optional projected CRS used for point generation when
+the input study area has a defined CRS.}
 
-\item{return_input_crs}{Logical. Return output to the input CRS? Defaults to TRUE.}
+\item{return_input_crs}{Logical. Return output to the input CRS?
+Defaults to \code{TRUE}.}
 }
 \value{
 An sf point object.
 }
 \description{
-Generate random points inside and outside a study area
+Generates random points within a study area, with an optional proportion
+generated outside the study-area boundary. The function supports both
+neutral synthetic XY coordinate space and study areas with a defined CRS.
 }

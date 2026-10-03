@@ -5,9 +5,12 @@
 #' Generates contiguous irregular polygon units within a supplied study area
 #' using a seeded fine-grid allocation method.
 #'
+#' The function supports both neutral synthetic XY coordinate space and
+#' study areas with a defined coordinate reference system.
+#'
 #' @param study_area An sf polygon object.
 #' @param target_n Target number of polygon units.
-#' @param cell_size Fine grid cell size in map units of the processing CRS.
+#' @param cell_size Fine tessellation cell size in coordinate units.
 #' @param method Polygon generation method. Currently only `"seeded_grid"`.
 #' @param clip Logical. Should output polygons be clipped to the study area?
 #' @param seed Optional random seed.
@@ -50,50 +53,103 @@ rg_polygons <- function(
     length(target_n) != 1L ||
     !is.numeric(target_n) ||
     is.na(target_n) ||
-    target_n <= 0
+    !is.finite(target_n) ||
+    target_n <= 0 ||
+    target_n != as.integer(target_n)
   ) {
-    stop("target_n must be greater than 0.", call. = FALSE)
+    stop(
+      "target_n must be a positive whole number.",
+      call. = FALSE
+    )
   }
 
   if (
     length(cell_size) != 1L ||
     !is.numeric(cell_size) ||
     is.na(cell_size) ||
+    !is.finite(cell_size) ||
     cell_size <= 0
   ) {
-    stop("cell_size must be greater than 0.", call. = FALSE)
+    stop(
+      "cell_size must be greater than 0.",
+      call. = FALSE
+    )
+  }
+
+  if (
+    length(clip) != 1L ||
+    !is.logical(clip) ||
+    is.na(clip)
+  ) {
+    stop(
+      "clip must be TRUE or FALSE.",
+      call. = FALSE
+    )
+  }
+
+  if (
+    length(return_input_crs) != 1L ||
+    !is.logical(return_input_crs) ||
+    is.na(return_input_crs)
+  ) {
+    stop(
+      "return_input_crs must be TRUE or FALSE.",
+      call. = FALSE
+    )
   }
 
   target_n <- as.integer(target_n)
 
   input_crs <- sf::st_crs(study_area)
+  synthetic_xy <- is.na(input_crs)
 
-  if (is.na(input_crs)) {
+  if (
+    synthetic_xy &&
+    !is.null(processing_crs)
+  ) {
     stop(
-      "study_area must have a CRS for rg_polygons().",
+      "processing_crs cannot be supplied when study_area has no CRS.",
       call. = FALSE
     )
   }
 
 
-  # 02 — Determine processing CRS -------------------------------------------
+  # 02 — Determine processing space -----------------------------------------
 
-  if (is.null(processing_crs)) {
+  if (synthetic_xy) {
 
-    if (sf::st_is_longlat(study_area)) {
+    study_area_proc <- sf::st_make_valid(
+      study_area
+    )
 
-      processing_crs <- 3857
+  } else {
 
-      message(
-        "Geographic CRS detected. Using EPSG:3857 as temporary ",
-        "processing CRS. For better local accuracy, supply ",
-        "processing_crs explicitly."
-      )
+    if (is.null(processing_crs)) {
 
-    } else {
+      if (sf::st_is_longlat(study_area)) {
 
-      processing_crs <- input_crs
+        processing_crs <- 3857
+
+        message(
+          "Geographic CRS detected. Using EPSG:3857 as temporary ",
+          "processing CRS. For better local accuracy, supply ",
+          "processing_crs explicitly."
+        )
+
+      } else {
+
+        processing_crs <- input_crs
+      }
     }
+
+    study_area_proc <- sf::st_transform(
+      study_area,
+      processing_crs
+    )
+
+    study_area_proc <- sf::st_make_valid(
+      study_area_proc
+    )
   }
 
 
@@ -102,15 +158,6 @@ rg_polygons <- function(
   if (!is.null(seed)) {
     set.seed(seed)
   }
-
-  study_area_proc <- sf::st_transform(
-    study_area,
-    processing_crs
-  )
-
-  study_area_proc <- sf::st_make_valid(
-    study_area_proc
-  )
 
   study_geom <- sf::st_union(
     study_area_proc
@@ -121,17 +168,20 @@ rg_polygons <- function(
   )
 
 
-  # 04 — Generate fine polygon grid -----------------------------------------
+  # 04 — Generate fine square tessellation ----------------------------------
 
-  fine_grid <- rg_grid(
-    sf::st_sf(geometry = study_geom),
+  fine_grid <- rg_tessellate(
+    sf::st_sf(
+      geometry = study_geom
+    ),
     cell_size = cell_size,
+    shape = "square",
     clip = TRUE
   )
 
   if (nrow(fine_grid) == 0L) {
     stop(
-      "No fine-grid cells were generated. Check study_area and cell_size.",
+      "No fine tessellation cells were generated. Check study_area and cell_size.",
       call. = FALSE
     )
   }
@@ -153,7 +203,9 @@ rg_polygons <- function(
   }
 
   seed_points_sf <- sf::st_sf(
-    seed_group = seq_len(length(seed_points)),
+    seed_group = seq_len(
+      length(seed_points)
+    ),
     geometry = seed_points
   )
 
@@ -162,10 +214,12 @@ rg_polygons <- function(
   )
 
 
-  # 06 — Allocate fine-grid cells to nearest seed ---------------------------
+  # 06 — Allocate fine cells to nearest seed --------------------------------
 
-  fine_grid_centroids <- sf::st_centroid(
-    sf::st_geometry(fine_grid)
+  fine_grid_centroids <- suppressWarnings(
+    sf::st_centroid(
+      sf::st_geometry(fine_grid)
+    )
   )
 
   nearest_seed <- sf::st_nearest_feature(
@@ -202,8 +256,12 @@ rg_polygons <- function(
     poly_units <- suppressWarnings(
       sf::st_intersection(
         poly_units,
-        sf::st_geometry(study_geom)
+        study_geom
       )
+    )
+
+    poly_units <- sf::st_make_valid(
+      poly_units
     )
 
     poly_units <- suppressWarnings(
@@ -231,13 +289,8 @@ rg_polygons <- function(
   poly_units[["generation_method"]] <- method
   poly_units[["topology_type"]] <- "clean"
 
-  poly_units[["area_m2"]] <- as.numeric(
+  poly_units[["area"]] <- as.numeric(
     sf::st_area(poly_units)
-  )
-
-  poly_units[["area_km2"]] <- round(
-    poly_units[["area_m2"]] / 1e6,
-    4
   )
 
 
@@ -252,8 +305,7 @@ rg_polygons <- function(
           "source_cell_count",
           "generation_method",
           "topology_type",
-          "area_m2",
-          "area_km2",
+          "area",
           "geometry"
         )
       )
@@ -262,7 +314,10 @@ rg_polygons <- function(
 
   # 11 — Return to input CRS -------------------------------------------------
 
-  if (return_input_crs) {
+  if (
+    !synthetic_xy &&
+    return_input_crs
+  ) {
 
     poly_units <- sf::st_transform(
       poly_units,

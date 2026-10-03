@@ -2,7 +2,7 @@
 % Please edit documentation in R/rg_study_area.R
 \name{rg_study_area}
 \alias{rg_study_area}
-\title{Generate a rectangular synthetic study area}
+\title{Generate a synthetic study area}
 \usage{
 rg_study_area(
   bbox = c(xmin = 0, ymin = 0, xmax = 5000, ymax = 5000),
@@ -12,17 +12,23 @@ rg_study_area(
 )
 }
 \arguments{
-\item{bbox}{Named numeric vector with xmin, ymin, xmax, ymax.}
+\item{bbox}{Either a named numeric vector containing \code{xmin}, \code{ymin},
+\code{xmax}, and \code{ymax}, or an object of class \code{bbox} created by
+\code{\link[sf:st_bbox]{sf::st_bbox()}}.}
 
-\item{crs}{Coordinate reference system. Defaults to NA for neutral synthetic space.}
+\item{crs}{Optional coordinate reference system. Defaults to \code{NA} for
+neutral synthetic XY space. When \code{bbox} is an \code{sf::st_bbox} object,
+its CRS is retained unless \code{crs} is explicitly supplied.}
 
 \item{area_id}{Area identifier.}
 
 \item{area_name}{Area name.}
 }
 \value{
-An sf polygon object.
+An sf polygon object containing one study-area feature.
 }
 \description{
-Generate a rectangular synthetic study area
+Creates a rectangular study area from either a named numeric bounding
+box or an \code{sf::st_bbox} object. The study area may use a defined CRS
+or remain in neutral synthetic XY coordinate space.
 }

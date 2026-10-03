@@ -2,14 +2,19 @@
 
 #' Generate a bundled synthetic risk scenario
 #'
-#' @param scenario Character. One of `"basic"`, `"grid_counts"`, `"hex_counts"`, or `"irregular_polygons"`.
+#' Generates a bundled synthetic scenario containing a study area, points,
+#' optional regular tessellations, and synthetic risk attributes.
+#'
+#' @param scenario Character. One of `"basic"`, `"grid_counts"`,
+#'   `"hex_counts"`, or `"irregular_polygons"`.
 #' @param bbox_name Example bbox name passed to `rg_bbox_example()`.
 #' @param n_points Number of points to generate.
 #' @param inside_pct Proportion of points generated inside the study area.
-#' @param cell_size Grid or hex cell size in map units.
+#' @param cell_size Tessellation cell size in map units.
 #' @param seed Optional random seed.
 #'
-#' @return A named list of sf objects.
+#' @return A named list of sf objects and scenario metadata.
+#'
 #' @export
 rg_scenario <- function(
   scenario = "basic",
@@ -19,6 +24,9 @@ rg_scenario <- function(
   cell_size = 500,
   seed = 123
 ) {
+
+  # 01 — Validate scenario ---------------------------------------------------
+
   scenario_options <- c(
     "basic",
     "grid_counts",
@@ -29,20 +37,34 @@ rg_scenario <- function(
   if (!scenario %in% scenario_options) {
     stop(
       "scenario must be one of: ",
-      paste(scenario_options, collapse = ", "),
+      paste(
+        scenario_options,
+        collapse = ", "
+      ),
       ".",
       call. = FALSE
     )
   }
 
-  ex <- rg_bbox_example(bbox_name)
+
+  # 02 — Generate study area -------------------------------------------------
+
+  ex <- rg_bbox_example(
+    bbox_name
+  )
 
   study_area <- rg_study_area(
     bbox = ex$bbox,
     crs = ex$crs,
-    area_id = paste0(bbox_name, "_study_area"),
+    area_id = paste0(
+      bbox_name,
+      "_study_area"
+    ),
     area_name = ex$description
   )
+
+
+  # 03 — Generate points -----------------------------------------------------
 
   points <- rg_points(
     study_area = study_area,
@@ -57,6 +79,9 @@ rg_scenario <- function(
     seed = seed
   )
 
+
+  # 04 — Initialise scenario output -----------------------------------------
+
   out <- list(
     scenario = scenario,
     bbox = ex,
@@ -65,10 +90,21 @@ rg_scenario <- function(
     points_risk = points_risk
   )
 
-  if (scenario %in% c("grid_counts", "basic")) {
-    grid <- rg_grid(
+
+  # 05 — Generate square tessellation ---------------------------------------
+
+  if (
+    scenario %in%
+      c(
+        "grid_counts",
+        "basic"
+      )
+  ) {
+
+    grid <- rg_tessellate(
       study_area = study_area,
       cell_size = cell_size,
+      shape = "square",
       clip = FALSE
     )
 
@@ -81,10 +117,21 @@ rg_scenario <- function(
     out$grid_risk <- grid_risk
   }
 
-  if (scenario %in% c("hex_counts", "basic")) {
-    hex <- rg_hex(
+
+  # 06 — Generate hexagonal tessellation ------------------------------------
+
+  if (
+    scenario %in%
+      c(
+        "hex_counts",
+        "basic"
+      )
+  ) {
+
+    hex <- rg_tessellate(
       study_area = study_area,
       cell_size = cell_size,
+      shape = "hex",
       clip = FALSE
     )
 
@@ -97,7 +144,16 @@ rg_scenario <- function(
     out$hex_risk <- hex_risk
   }
 
-  if (scenario == "irregular_polygons") {
+
+  # 07 — Generate irregular polygons ----------------------------------------
+
+  if (
+    identical(
+      scenario,
+      "irregular_polygons"
+    )
+  ) {
+
     polygons <- rg_polygons(
       study_area = study_area,
       target_n = 20,
@@ -113,6 +169,9 @@ rg_scenario <- function(
     out$polygons <- polygons
     out$polygons_risk <- polygons_risk
   }
+
+
+  # 08 — Return --------------------------------------------------------------
 
   out
 }

@@ -14,7 +14,8 @@ rg_scenario(
 )
 }
 \arguments{
-\item{scenario}{Character. One of \code{"basic"}, \code{"grid_counts"}, \code{"hex_counts"}, or \code{"irregular_polygons"}.}
+\item{scenario}{Character. One of \code{"basic"}, \code{"grid_counts"},
+\code{"hex_counts"}, or \code{"irregular_polygons"}.}
 
 \item{bbox_name}{Example bbox name passed to \code{rg_bbox_example()}.}
 
@@ -22,13 +23,14 @@ rg_scenario(
 
 \item{inside_pct}{Proportion of points generated inside the study area.}
 
-\item{cell_size}{Grid or hex cell size in map units.}
+\item{cell_size}{Tessellation cell size in map units.}
 
 \item{seed}{Optional random seed.}
 }
 \value{
-A named list of sf objects.
+A named list of sf objects and scenario metadata.
 }
 \description{
-Generate a bundled synthetic risk scenario
+Generates a bundled synthetic scenario containing a study area, points,
+optional regular tessellations, and synthetic risk attributes.
 }
