@@ -2,7 +2,7 @@
 
 #' Generate a bundled synthetic risk scenario
 #'
-#' @param scenario Character. One of `"basic"`, `"grid_counts"`, or `"hex_counts"`.
+#' @param scenario Character. One of `"basic"`, `"grid_counts"`, `"hex_counts"`, or `"irregular_polygons"`.
 #' @param bbox_name Example bbox name passed to `rg_bbox_example()`.
 #' @param n_points Number of points to generate.
 #' @param inside_pct Proportion of points generated inside the study area.
@@ -19,9 +19,18 @@ rg_scenario <- function(
   cell_size = 500,
   seed = 123
 ) {
-  if (!scenario %in% c("basic", "grid_counts", "hex_counts")) {
+  scenario_options <- c(
+    "basic",
+    "grid_counts",
+    "hex_counts",
+    "irregular_polygons"
+  )
+
+  if (!scenario %in% scenario_options) {
     stop(
-      "scenario must be one of: basic, grid_counts, hex_counts.",
+      "scenario must be one of: ",
+      paste(scenario_options, collapse = ", "),
+      ".",
       call. = FALSE
     )
   }
@@ -36,7 +45,7 @@ rg_scenario <- function(
   )
 
   points <- rg_points(
-    study_area,
+    study_area = study_area,
     n = n_points,
     inside_pct = inside_pct,
     outside_distance = cell_size * 2,
@@ -58,7 +67,7 @@ rg_scenario <- function(
 
   if (scenario %in% c("grid_counts", "basic")) {
     grid <- rg_grid(
-      study_area,
+      study_area = study_area,
       cell_size = cell_size,
       clip = FALSE
     )
@@ -74,7 +83,7 @@ rg_scenario <- function(
 
   if (scenario %in% c("hex_counts", "basic")) {
     hex <- rg_hex(
-      study_area,
+      study_area = study_area,
       cell_size = cell_size,
       clip = FALSE
     )
@@ -86,6 +95,23 @@ rg_scenario <- function(
 
     out$hex <- hex
     out$hex_risk <- hex_risk
+  }
+
+  if (scenario == "irregular_polygons") {
+    polygons <- rg_polygons(
+      study_area = study_area,
+      target_n = 20,
+      cell_size = cell_size / 2,
+      seed = seed
+    )
+
+    polygons_risk <- rg_add_risk_attributes(
+      polygons,
+      seed = seed + 3
+    )
+
+    out$polygons <- polygons
+    out$polygons_risk <- polygons_risk
   }
 
   out

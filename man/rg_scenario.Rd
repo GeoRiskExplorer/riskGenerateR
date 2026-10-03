@@ -14,7 +14,7 @@ rg_scenario(
 )
 }
 \arguments{
-\item{scenario}{Character. One of \code{"basic"}, \code{"grid_counts"}, or \code{"hex_counts"}.}
+\item{scenario}{Character. One of \code{"basic"}, \code{"grid_counts"}, \code{"hex_counts"}, or \code{"irregular_polygons"}.}
 
 \item{bbox_name}{Example bbox name passed to \code{rg_bbox_example()}.}
 
