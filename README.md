@@ -2,7 +2,7 @@
 
 <!-- badges: start -->
 
-![Lifecycle](https://img.shields.io/badge/lifecycle-early_development-orange.svg)
+![Lifecycle](https://img.shields.io/badge/lifecycle-experimental-orange.svg)
 
 <!-- badges: end -->
 
