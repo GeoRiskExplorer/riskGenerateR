@@ -1,5 +1,5 @@
 # =============================================================================
-# riskGenerateR — rg_study_area() live QA
+# riskGenerateR - rgr_study_area() live QA
 # =============================================================================
 #
 # Purpose:
@@ -10,16 +10,16 @@
 # =============================================================================
 
 
-# 01 — Setup -----------------------------------------------------------------
+# 01 - Setup -----------------------------------------------------------------
 
 devtools::load_all()
 
 library(sf)
 
 
-# 02 — Default synthetic XY study area ---------------------------------------
+# 02 - Default synthetic XY study area ---------------------------------------
 
-study_xy <- rg_study_area()
+study_xy <- rgr_study_area()
 
 print(study_xy)
 print(sf::st_crs(study_xy))
@@ -31,9 +31,9 @@ plot(
 )
 
 
-# 03 — Custom synthetic XY extent --------------------------------------------
+# 03 - Custom synthetic XY extent --------------------------------------------
 
-study_custom <- rg_study_area(
+study_custom <- rgr_study_area(
   bbox = c(
     xmin = -2000,
     ymin = -1000,
@@ -53,7 +53,7 @@ plot(
 )
 
 
-# 04 — sf bbox with inherited CRS --------------------------------------------
+# 04 - sf bbox with inherited CRS --------------------------------------------
 
 existing_bbox <- sf::st_bbox(
   c(
@@ -65,7 +65,7 @@ existing_bbox <- sf::st_bbox(
   crs = sf::st_crs(7855)
 )
 
-study_bbox <- rg_study_area(
+study_bbox <- rgr_study_area(
   bbox = existing_bbox,
   area_name = "BBox Study Area"
 )
@@ -76,13 +76,13 @@ print(sf::st_bbox(study_bbox))
 
 plot(
   sf::st_geometry(study_bbox),
-  main = "sf bbox input — inherited CRS"
+  main = "sf bbox input - inherited CRS"
 )
 
 
-# 05 — Numeric bbox with explicit CRS ----------------------------------------
+# 05 - Numeric bbox with explicit CRS ----------------------------------------
 
-study_crs <- rg_study_area(
+study_crs <- rgr_study_area(
   bbox = c(
     xmin = 300000,
     ymin = 5800000,
@@ -99,16 +99,16 @@ print(sf::st_bbox(study_crs))
 
 plot(
   sf::st_geometry(study_crs),
-  main = "Numeric bbox — explicit CRS"
+  main = "Numeric bbox - explicit CRS"
 )
 
 
-# 06 — Visual QA summary ------------------------------------------------------
+# 06 - Visual QA summary ------------------------------------------------------
 
 cat(
   "\n",
   "============================================================\n",
-  "RG_STUDY_AREA LIVE QA\n",
+  "rgr_STUDY_AREA LIVE QA\n",
   "============================================================\n",
   "Default XY CRS missing: ",
   is.na(sf::st_crs(study_xy)),

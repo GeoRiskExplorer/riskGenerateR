@@ -1,9 +1,12 @@
-# 01 — Basic bundled scenario
+# 01 - Basic bundled scenario
 
 library(mapview)
 library(riskGenerateR)
 
-x <- rg_scenario(
+
+# 01 - Generate scenario ----------------------------------------------------
+
+x <- rgr_scenario(
   scenario = "basic",
   bbox_name = "wa_outback",
   n_points = 100,
@@ -12,35 +15,87 @@ x <- rg_scenario(
   seed = 123
 )
 
-hex <- x$hex
-points <- x$points_risk
-study_area <- x$study_area
+
+# 02 - Inspect scenario -----------------------------------------------------
+
+names(
+  x
+)
+
+rgr_summary(
+  x$incidents
+)
+
+rgr_summary(
+  x$grid_attributes
+)
+
+rgr_summary(
+  x$hex_attributes
+)
+
+
+# 03 - Visual QA ------------------------------------------------------------
 
 mapview(
-  hex,
+  x$hex,
   color = "grey40",
   alpha.regions = 0,
   lwd = 1,
   legend = FALSE,
-  layer.name = "Synthetic Hex Grid"
+  layer.name = "Hex Tessellation"
 ) +
   mapview(
-    study_area,
+    x$study_area,
     alpha.regions = 0.1,
     legend = FALSE,
     layer.name = "Study Area"
   ) +
   mapview(
-    points,
-    zcol = "risk_class",
-    layer.name = "Synthetic Risk Events"
+    x$incidents,
+    zcol = "event_type",
+    layer.name = "Synthetic Incidents"
   )
 
-cat("\n--- SCENARIO QA ---\n")
-cat("Scenario:", x$scenario, "\n")
-cat("Points:", nrow(x$points_risk), "\n")
-cat("Point event count:", sum(x$points_risk$event_count), "\n")
-cat("Grid cells:", nrow(x$grid_risk), "\n")
-cat("Grid events:", sum(x$grid_risk$event_count), "\n")
-cat("Hex cells:", nrow(x$hex_risk), "\n")
-cat("Hex events:", sum(x$hex_risk$event_count), "\n")
+
+# 04 - Console QA -----------------------------------------------------------
+
+cat(
+  "\n--- BASIC SCENARIO QA ---\n"
+)
+
+cat(
+  "Scenario:",
+  x$scenario,
+  "\n"
+)
+
+cat(
+  "Points:",
+  nrow(x$points),
+  "\n"
+)
+
+cat(
+  "Incidents:",
+  nrow(x$incidents),
+  "\n"
+)
+
+cat(
+  "Event count:",
+  sum(x$incidents$event_count),
+  "\n"
+)
+
+cat(
+  "Square cells:",
+  nrow(x$grid),
+  "\n"
+)
+
+cat(
+  "Hex cells:",
+  nrow(x$hex),
+  "\n"
+)

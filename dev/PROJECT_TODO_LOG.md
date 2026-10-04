@@ -1,4 +1,4 @@
-# riskGenerateR — Project TODO Log
+# riskGenerateR - Project TODO Log
 
 ## Package purpose
 
@@ -25,33 +25,33 @@ Future support may include:
 
 ### Study area and example helpers
 
-- `rg_bbox_example()`
-- `rg_study_area()`
-- `rg_example_data()`
+- `rgr_bbox_example()`
+- `rgr_study_area()`
+- `rgr_example_data()`
 
 ### Geometry generators
 
-- `rg_points()`
-- `rg_grid()`
-- `rg_hex()`
-- `rg_polygons()`
+- `rgr_points()`
+- `rgr_grid()`
+- `rgr_hex()`
+- `rgr_polygons()`
 
 ### Risk generators
 
-- `rg_add_risk_attributes()`
+- `rgr_add_risk_attributes()`
 
 ### Scenario helpers
 
-- `rg_scenario()`
+- `rgr_scenario()`
 
 ### QA helpers
 
-- `rg_summary()`
-- `print.rg_summary()`
+- `rgr_summary()`
+- `print.rgr_summary()`
 
 ### Topology stress-testing helpers
 
-- `rg_topology_modify()`
+- `rgr_topology_modify()`
 
 ---
 
@@ -136,20 +136,20 @@ Real-world testing completed using:
 
 ### Grids and hexes
 
-- `rg_grid()` and `rg_hex()` default to `clip = FALSE`.
+- `rgr_grid()` and `rgr_hex()` default to `clip = FALSE`.
 - Clipping remains optional.
-- `rg_hex()` is generic sf hex tessellation only.
+- `rgr_hex()` is generic sf hex tessellation only.
 - True H3 support should remain separate.
 
 ### Irregular polygons
 
-- `rg_polygons()` defaults to `clip = TRUE`.
+- `rgr_polygons()` defaults to `clip = TRUE`.
 - Clean topology generation is the default behaviour.
-- Stress-testing topology modifications occur separately using `rg_topology_modify()`.
+- Stress-testing topology modifications occur separately using `rgr_topology_modify()`.
 
 ### Risk attributes
 
-- `rg_add_risk_attributes()` keeps one row per geometry.
+- `rgr_add_risk_attributes()` keeps one row per geometry.
 - Polygon/count mode uses `dominant_*` fields.
 - Detailed grouped hazard summaries should later use non-spatial join tables.
 
@@ -166,8 +166,8 @@ Current design:
 
 Current functions supporting CRS-aware workflows:
 
-- `rg_points()`
-- `rg_polygons()`
+- `rgr_points()`
+- `rgr_polygons()`
 
 ---
 
@@ -264,8 +264,8 @@ Important:
 
 Potential future functions:
 
-- `rg_h3()`
-- `rg_h3_grid()`
+- `rgr_h3()`
+- `rgr_h3_grid()`
 
 Needs:
 
@@ -344,7 +344,7 @@ Potential future methods:
 Potential future function:
 
 ```r
-rg_risk_table()
+rgr_risk_table()
 ```
 
 Purpose:

@@ -1,18 +1,18 @@
 # =============================================================================
-# riskGenerateR — rg_tessellate() live QA
+# riskGenerateR - rgr_tessellate() live QA
 # =============================================================================
 
 
-# 01 — Setup -----------------------------------------------------------------
+# 01 - Setup -----------------------------------------------------------------
 
 devtools::load_all()
 
 library(sf)
 
 
-# 02 — Synthetic study area --------------------------------------------------
+# 02 - Synthetic study area --------------------------------------------------
 
-study <- rg_study_area(
+study <- rgr_study_area(
   bbox = c(
     xmin = 0,
     ymin = 0,
@@ -22,9 +22,9 @@ study <- rg_study_area(
 )
 
 
-# 03 — Square tessellation ---------------------------------------------------
+# 03 - Square tessellation ---------------------------------------------------
 
-square <- rg_tessellate(
+square <- rgr_tessellate(
   study,
   cell_size = 500,
   shape = "square"
@@ -45,9 +45,9 @@ plot(
 )
 
 
-# 04 — Hexagonal tessellation ------------------------------------------------
+# 04 - Hexagonal tessellation ------------------------------------------------
 
-hex <- rg_tessellate(
+hex <- rgr_tessellate(
   study,
   cell_size = 500,
   shape = "hex"
@@ -68,7 +68,7 @@ plot(
 )
 
 
-# 05 — Create irregular test boundary ----------------------------------------
+# 05 - Create irregular test boundary ----------------------------------------
 
 study_irregular_geom <- sf::st_buffer(
   sf::st_sfc(
@@ -85,9 +85,9 @@ study_irregular <- sf::st_sf(
 )
 
 
-# 06 — Clipped square tessellation ------------------------------------------
+# 06 - Clipped square tessellation ------------------------------------------
 
-square_clipped <- rg_tessellate(
+square_clipped <- rgr_tessellate(
   study_irregular,
   cell_size = 500,
   shape = "square",
@@ -106,9 +106,9 @@ plot(
 )
 
 
-# 07 — Clipped hexagonal tessellation ---------------------------------------
+# 07 - Clipped hexagonal tessellation ---------------------------------------
 
-hex_clipped <- rg_tessellate(
+hex_clipped <- rgr_tessellate(
   study_irregular,
   cell_size = 500,
   shape = "hex",
@@ -127,9 +127,9 @@ plot(
 )
 
 
-# 08 — Projected CRS ---------------------------------------------------------
+# 08 - Projected CRS ---------------------------------------------------------
 
-study_projected <- rg_study_area(
+study_projected <- rgr_study_area(
   bbox = c(
     xmin = 300000,
     ymin = 5800000,
@@ -139,19 +139,19 @@ study_projected <- rg_study_area(
   crs = 7855
 )
 
-projected_hex <- rg_tessellate(
+projected_hex <- rgr_tessellate(
   study_projected,
   cell_size = 500,
   shape = "hex"
 )
 
 
-# 09 — Live QA summary -------------------------------------------------------
+# 09 - Live QA summary -------------------------------------------------------
 
 cat(
   "\n",
   "============================================================\n",
-  "RG_TESSELLATE LIVE QA\n",
+  "rgr_TESSELLATE LIVE QA\n",
   "============================================================\n",
   "Square cells:             ",
   nrow(square),

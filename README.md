@@ -1,4 +1,4 @@
-\# riskGenerateR
+# riskGenerateR
 
 <!-- badges: start -->
 
@@ -6,63 +6,72 @@
 
 <!-- badges: end -->
 
-`riskGenerateR` generates synthetic spatial risk datasets for testing,
-development, demonstrations, QA workflows, reproducible examples,
-dashboards, and spatial risk package development.
+`riskGenerateR` generates reproducible synthetic spatial and contextual data
+for risk-related development, testing, demonstrations and quality assurance.
 
-The package is designed as part of the GeoRisk Verse ecosystem and
-currently focuses on generating synthetic `sf` spatial objects.
+It provides spatial features together with plausible contextual attributes
+representing hazards, incidents, risk-register records, observations and
+generic analytical variables.
+
+`riskGenerateR` generates the analytical fixture. It does not calculate or
+infer risk.
 
 ---
 
 ## GeoRisk Verse
 
-`riskGenerateR` is part of the broader GeoRisk Verse ecosystem of
-spatial risk analysis and workflow packages.
+`riskGenerateR` is part of the broader GeoRisk Verse ecosystem.
 
-The package focuses specifically on synthetic spatial data generation
-for:
+Its responsibility is synthetic data generation for:
 
-- testing
-- demonstrations
-- QA workflows
+- package development and testing
 - reproducible examples
-- dashboards
-- package development
-- Shiny prototypes
+- QA workflows
+- demonstrations
+- application prototypes
 - spatial workflow validation
+- risk-related analytical development
 
-Spatial analysis workflows themselves are intended to be handled by
-companion packages within the GeoRisk Verse ecosystem.
+Spatial analysis, aggregation, modelling and decision-support workflows are
+intentionally handled downstream.
 
 ---
 
 ## Current features
 
-- Study area generation
-- Example bounding boxes
-- Random point generation
-- Inside/outside event generation
-- Square grids
-- Hex tessellations
-- Irregular polygon generation
-- Synthetic risk attributes
-- Synthetic exposure and event counts
-- Scenario generators
-- Spatial QA summaries
-- CRS-aware geometry generation workflows
+`riskGenerateR` currently supports:
+
+- study area generation
+- example bounding boxes
+- random point generation
+- controlled inside/outside point generation
+- square and hexagonal tessellations
+- irregular polygon generation
+- contextual attribute generation
+- complete synthetic scenarios
+- spatial QA and descriptive summaries
+- CRS-aware geometry workflows
+- explicit topology stress testing
+
+Contextual attribute generators currently include:
+
+- hazard assessments
+- incidents
+- risk-register records
+- observations
+- generic analytical variables
 
 ---
 
 ## Installation
 
 ```r
-# development version
+# install.packages("remotes")
 
-# remotes::install_github(
-#   "GeoRiskExplorer/riskGenerateR",
-#   build_vignettes = FALSE
-# )
+remotes::install_github(
+  "GeoRiskExplorer/riskGenerateR",
+  build_vignettes = TRUE
+)
 ```
 
 ---
@@ -71,120 +80,172 @@ companion packages within the GeoRisk Verse ecosystem.
 
 ```r
 library(riskGenerateR)
-library(mapview)
 
-x <- rg_example_data("basic_scenario")
+x <- rgr_scenario(
+  scenario = "basic",
+  seed = 123
+)
 
-mapview(
-  x$hex_risk,
-  zcol = "risk_class"
-) +
-  mapview(
-    x$points_risk,
-    zcol = "risk_class"
-  )
+names(x)
+
+rgr_summary(
+  x$incidents
+)
+
+rgr_summary(
+  x$grid_attributes
+)
+```
+
+Individual components can also be generated directly:
+
+```r
+ex <- rgr_bbox_example(
+  "wa_outback"
+)
+
+study_area <- rgr_study_area(
+  bbox = ex$bbox,
+  crs = ex$crs
+)
+
+points <- rgr_points(
+  study_area,
+  n = 100,
+  seed = 123
+)
+
+incidents <- rgr_add_attributes(
+  points,
+  type = "incident",
+  seed = 456
+)
+
+rgr_summary(
+  incidents
+)
 ```
 
 ---
 
-## Package philosophy
+## Package boundary
 
-`riskGenerateR` focuses on generating synthetic spatial datasets only.
+`riskGenerateR` generates synthetic spatial and contextual data representing
+plausible conditions for risk-related analysis.
 
-Spatial analysis workflows such as:
+The package does **not** calculate analytical risk outputs.
 
-- spatial joins
+Operations such as:
+
+- spatial aggregation
 - rates
-- SMR
-- choropleths
-- aggregation
-- DuckDB integration
-- spatial risk metrics
+- expected counts
+- standardised ratios
+- risk scores or classes
+- statistical modelling
+- H3 processing
+- database integration
+- decision-support outputs
 
-are intentionally handled by companion packages within the
-GeoRisk Verse ecosystem.
+belong in downstream analytical workflows or companion packages.
 
-This separation keeps:
-
-- generation workflows lightweight
-- dependencies smaller
-- package responsibilities clearer
-- downstream workflows more modular
-
----
-
-## Current object support
-
-Current outputs are primarily:
-
-- `sf`
-
-Future support may include:
-
-- H3
-- WKT/WKB
-- terra
-- raster
-- non-spatial join tables
+This separation keeps synthetic data generation reproducible, lightweight and
+reusable across different analytical approaches.
 
 ---
 
 ## Current exported functions
 
-### Study area and example helpers
+### Study areas and examples
 
-- `rg_bbox_example()`
-- `rg_study_area()`
-- `rg_example_data()`
+- `rgr_bbox_example()`
+- `rgr_study_area()`
+- `rgr_example_data()`
 
-### Geometry generators
+### Geometry generation
 
-- `rg_points()`
-- `rg_grid()`
-- `rg_hex()`
-- `rg_polygons()`
+- `rgr_points()`
+- `rgr_tessellate()`
+- `rgr_polygons()`
 
-### Risk generators
+### Contextual attributes
 
-- `rg_add_risk_attributes()`
+- `rgr_add_attributes()`
 
-### Scenario helpers
+### Scenario generation
 
-- `rg_scenario()`
+- `rgr_scenario()`
 
-### QA helpers
+### QA and inspection
 
-- `rg_summary()`
+- `rgr_summary()`
+
+### Topology stress testing
+
+- `rgr_topology_modify()`
+
+---
+
+## Attribute contexts
+
+`rgr_add_attributes()` separates geometry generation from semantic context.
+
+For example:
+
+```r
+incidents <- rgr_add_attributes(
+  points,
+  type = "incident",
+  seed = 123
+)
+
+observations <- rgr_add_attributes(
+  points,
+  type = "observation",
+  seed = 123
+)
+
+hazards <- rgr_add_attributes(
+  points,
+  type = "hazard_assessment",
+  seed = 123
+)
+```
+
+The same spatial features can therefore represent different synthetic
+risk-related contexts without embedding analytical conclusions in the data
+generator.
 
 ---
 
 ## Design principles
 
-- generation-focused
-- lightweight dependencies
+`riskGenerateR` is designed around:
+
+- generation rather than analysis
 - reproducible outputs
-- CRS-aware workflows
-- topology-aware geometry generation
-- compatible with downstream spatial analysis packages
-- package interoperability across the GeoRisk Verse ecosystem
+- coherent synthetic attributes
+- CRS-aware spatial workflows
+- geometry and semantic separation
+- valid geometry by default
+- explicit stress-test behaviour
+- lightweight dependencies
+- interoperability with downstream packages
+
+Synthetic XY data without a defined CRS are also supported as a first-class
+development and testing workflow.
 
 ---
 
-## Current development status
+## Development status
 
-Early development version.
+`riskGenerateR` is under active development.
 
-The package is currently under active development and the API may change.
+The current development focus is stabilising the public API, documentation,
+examples and vignettes for the first public release.
 
-Current development priorities include:
-
-- stronger CRS handling
-- additional geometry generation methods
-- H3 support
-- topology stress-testing workflows
-- expanded synthetic risk scenarios
-- improved documentation and vignettes
-- pkgdown integration
+Functionality beyond synthetic data generation is intentionally kept outside
+the package.
 
 ---
 

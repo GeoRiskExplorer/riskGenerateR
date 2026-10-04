@@ -1,21 +1,31 @@
 Package: riskGenerateR
-Title: Synthetic Spatial Risk Data Generation
-Version: 0.0.0.9000
-Authors@R: 
+Title: Synthetic Spatial and Contextual Data Generation
+Version: 0.1.0
+Authors@R:
     person(
-      given = "Robert",
+      given = "Rob",
       family = "Andronaco",
+      email = "enquire@georiskanalysis.com",
       role = c("aut", "cre"),
-      email = "data@georiskanalysis.com"
+      comment = c(
+        "GeoRisk Analysis",
+        "GDipRiskMgt, MA, MGeospatialSc"
+      )
     )
-Description: 
-    Generate synthetic spatial risk datasets for testing,
-    development, demonstrations, quality assurance,
-    reproducible examples, and spatial risk workflows.
-    Supports random point generation, grids, hexagons,
-    irregular polygons, synthetic risk attributes,
-    and bundled spatial risk scenarios using sf objects.
+Description:
+    Generates reproducible synthetic spatial and contextual data for
+    risk-related software development, testing, demonstrations, quality
+    assurance, and analytical workflows. Provides tools for generating
+    study areas, random points, square and hexagonal tessellations,
+    irregular polygons, contextual attributes, and complete synthetic
+    scenarios using 'sf' objects. Contextual data can represent hazard
+    assessments, incidents, risk-register records, observations, and
+    generic analytical variables. The package generates synthetic inputs
+    and does not calculate or infer analytical risk outputs.
 License: MIT + file LICENSE
+URL: https://github.com/GeoRiskExplorer/riskGenerateR,
+    https://www.georiskanalysis.com
+BugReports: https://github.com/GeoRiskExplorer/riskGenerateR/issues
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
 Imports:
@@ -23,8 +33,11 @@ Imports:
     sf
 Suggests:
     devtools,
+    knitr,
     mapview,
     qs2,
+    rmarkdown,
     testthat (>= 3.0.0)
+VignetteBuilder: knitr
 Config/testthat/edition: 3
 Config/roxygen2/version: 8.1.0

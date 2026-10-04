@@ -1,5 +1,5 @@
 # =============================================================================
-# riskGenerateR — rg_points() live QA
+# riskGenerateR - rgr_points() live QA
 # =============================================================================
 #
 # Purpose:
@@ -10,16 +10,16 @@
 # =============================================================================
 
 
-# 01 — Setup -----------------------------------------------------------------
+# 01 - Setup -----------------------------------------------------------------
 
 devtools::load_all()
 
 library(sf)
 
 
-# 02 — Create synthetic XY study area ----------------------------------------
+# 02 - Create synthetic XY study area ----------------------------------------
 
-study_xy <- rg_study_area()
+study_xy <- rgr_study_area()
 
 plot(
   sf::st_geometry(study_xy),
@@ -27,9 +27,9 @@ plot(
 )
 
 
-# 03 — Default point generation ----------------------------------------------
+# 03 - Default point generation ----------------------------------------------
 
-pts_default <- rg_points(
+pts_default <- rgr_points(
   study_xy,
   n = 100,
   seed = 123
@@ -41,7 +41,7 @@ print(table(pts_default$inside_flag))
 
 plot(
   sf::st_geometry(study_xy),
-  main = "Default random points — synthetic XY"
+  main = "Default random points - synthetic XY"
 )
 
 plot(
@@ -51,9 +51,9 @@ plot(
 )
 
 
-# 04 — Mixed inside/outside generation ---------------------------------------
+# 04 - Mixed inside/outside generation ---------------------------------------
 
-pts_mixed <- rg_points(
+pts_mixed <- rgr_points(
   study_xy,
   n = 100,
   inside_pct = 0.8,
@@ -71,7 +71,7 @@ display_extent <- sf::st_buffer(
 plot(
   sf::st_geometry(display_extent),
   border = "grey",
-  main = "Random points — 80% inside / 20% outside"
+  main = "Random points - 80% inside / 20% outside"
 )
 
 plot(
@@ -87,15 +87,15 @@ plot(
 )
 
 
-# 05 — Reproducibility --------------------------------------------------------
+# 05 - Reproducibility --------------------------------------------------------
 
-pts_a <- rg_points(
+pts_a <- rgr_points(
   study_xy,
   n = 50,
   seed = 999
 )
 
-pts_b <- rg_points(
+pts_b <- rgr_points(
   study_xy,
   n = 50,
   seed = 999
@@ -109,9 +109,9 @@ reproducible <- identical(
 print(reproducible)
 
 
-# 06 — Projected CRS ----------------------------------------------------------
+# 06 - Projected CRS ----------------------------------------------------------
 
-study_projected <- rg_study_area(
+study_projected <- rgr_study_area(
   bbox = c(
     xmin = 300000,
     ymin = 5800000,
@@ -122,7 +122,7 @@ study_projected <- rg_study_area(
   area_name = "Projected Study Area"
 )
 
-pts_projected <- rg_points(
+pts_projected <- rgr_points(
   study_projected,
   n = 100,
   seed = 123
@@ -133,7 +133,7 @@ print(table(pts_projected$inside_flag))
 
 plot(
   sf::st_geometry(study_projected),
-  main = "Random points — projected CRS"
+  main = "Random points - projected CRS"
 )
 
 plot(
@@ -143,12 +143,12 @@ plot(
 )
 
 
-# 07 — Visual QA summary ------------------------------------------------------
+# 07 - Visual QA summary ------------------------------------------------------
 
 cat(
   "\n",
   "============================================================\n",
-  "RG_POINTS LIVE QA\n",
+  "rgr_POINTS LIVE QA\n",
   "============================================================\n",
   "Default points:           ",
   nrow(pts_default),

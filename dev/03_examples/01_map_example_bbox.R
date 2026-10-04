@@ -1,19 +1,27 @@
-# 01 — Map example bbox, points, grid, and risk attributes
+# 01 - Map example: study area, points, and square tessellation
 
 library(sf)
 library(mapview)
 library(riskGenerateR)
 
-ex <- rg_bbox_example("wa_outback")
 
-study_area <- rg_study_area(
-  bbox = ex$bbox,
-  crs = ex$crs,
-  area_id = "wa_outback_test_bbox",
-  area_name = "WA Outback Test Bounding Box"
+# 01 - Build study area -----------------------------------------------------
+
+ex <- rgr_bbox_example(
+  "wa_outback"
 )
 
-points <- rg_points(
+study_area <- rgr_study_area(
+  bbox = ex$bbox,
+  crs = ex$crs,
+  area_id = "wa_outback_example",
+  area_name = "WA Outback Example"
+)
+
+
+# 02 - Generate spatial features --------------------------------------------
+
+points <- rgr_points(
   study_area,
   n = 100,
   inside_pct = 0.9,
@@ -21,64 +29,84 @@ points <- rg_points(
   seed = 123
 )
 
-points_risk <- rg_add_risk_attributes(
-  points,
-  seed = 123
-)
-
-grid <- rg_grid(
+grid <- rgr_tessellate(
   study_area,
   cell_size = 500,
+  shape = "square",
   clip = TRUE
 )
 
-grid_risk <- rg_add_risk_attributes(
-  grid,
+
+# 03 - Add contextual attributes --------------------------------------------
+
+incidents <- rgr_add_attributes(
+  points,
+  type = "incident",
   seed = 123
 )
+
+grid_attributes <- rgr_add_attributes(
+  grid,
+  type = "generic",
+  seed = 456
+)
+
+
+# 04 - Visual QA ------------------------------------------------------------
 
 mapview(
   grid,
   color = "grey40",
   alpha.regions = 0,
   lwd = 1,
-  legend = FALSE
+  legend = FALSE,
+  layer.name = "Square Tessellation"
 ) +
   mapview(
     study_area,
     alpha.regions = 0.1,
-    legend = FALSE
+    legend = FALSE,
+    layer.name = "Study Area"
   ) +
   mapview(
-    points_risk,
-    zcol = "risk_class"
+    incidents,
+    zcol = "event_type",
+    layer.name = "Synthetic Incidents"
   )
 
-# points_risk
-# grid_risk
 
-points_risk
-grid_risk
+# 05 - Console QA -----------------------------------------------------------
 
-# =========================================================
-# QA — Point Risk Summary
-# =========================================================
+cat(
+  "\n--- SQUARE EXAMPLE QA ---\n"
+)
 
-cat("\n--- POINT RISK QA ---\n")
+cat(
+  "Total points:",
+  nrow(incidents),
+  "\n"
+)
 
-cat("Total points:", nrow(points_risk), "\n")
-cat("Total event count:", sum(points_risk$event_count), "\n")
+cat(
+  "Total event count:",
+  sum(incidents$event_count),
+  "\n"
+)
 
-print(table(points_risk$risk_class))
+cat(
+  "Total grid cells:",
+  nrow(grid_attributes),
+  "\n"
+)
 
-# =========================================================
-# QA — Grid Risk Summary
-# =========================================================
+print(
+  table(incidents$event_type)
+)
 
-cat("\n--- GRID RISK QA ---\n")
+rgr_summary(
+  incidents
+)
 
-cat("Total grid cells:", nrow(grid_risk), "\n")
-cat("Total aggregated events:", sum(grid_risk$event_count), "\n")
-cat("Total exposure:", sum(grid_risk$exposure_count), "\n")
-
-print(table(grid_risk$risk_class))
+rgr_summary(
+  grid_attributes
+)

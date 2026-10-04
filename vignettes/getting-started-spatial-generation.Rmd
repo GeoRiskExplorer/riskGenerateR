@@ -1,0 +1,365 @@
+---
+title: "Getting Started with Spatial Generation"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Getting Started with Spatial Generation}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>",
+  fig.width = 7,
+  fig.height = 5
+)
+```
+
+# Overview
+
+`riskGenerateR` generates reproducible synthetic spatial and contextual data
+for risk-related development, testing, demonstrations and quality assurance.
+
+The spatial generation workflow is intentionally modular:
+
+```text
+study area
+    |
+    +-- points
+    |
+    +-- square or hexagonal tessellations
+    |
+    +-- irregular polygons
+```
+
+These spatial features can be used directly as synthetic test data or passed
+to contextual attribute generators elsewhere in the package.
+
+`riskGenerateR` generates synthetic data. It does not calculate or infer risk.
+
+# Load the package
+
+```{r load-package}
+library(riskGenerateR)
+```
+
+The examples below use `sf` objects returned directly by `riskGenerateR`.
+
+# Create a study area
+
+A study area provides the spatial extent used by the geometry generators.
+
+The simplest workflow uses a named numeric bounding box.
+
+```{r study-area-xy}
+study_area_xy <- rgr_study_area(
+  bbox = c(
+    xmin = 0,
+    ymin = 0,
+    xmax = 5000,
+    ymax = 4000
+  ),
+  area_id = "example_xy",
+  area_name = "Synthetic XY Study Area"
+)
+
+study_area_xy
+```
+
+This creates a synthetic coordinate space without assigning a coordinate
+reference system.
+
+Synthetic XY coordinates are useful when the purpose of the fixture is to
+test geometry operations, package behaviour or analytical workflows without
+representing a real location.
+
+```{r study-area-xy-summary}
+rgr_summary(
+  study_area_xy
+)
+```
+
+# Generate random points
+
+`rgr_points()` generates random point features relative to a study area.
+
+```{r points}
+points <- rgr_points(
+  study_area_xy,
+  n = 100,
+  inside_pct = 0.9,
+  outside_distance = 500,
+  seed = 123
+)
+
+points
+```
+
+The `inside_pct` argument controls the proportion generated inside the study
+area.
+
+Here, 90% of points are generated inside the study area and the remainder are
+generated outside it.
+
+```{r points-table}
+table(
+  points$inside_flag
+)
+```
+
+A seed can be supplied when reproducible output is required.
+
+```{r points-reproducibility}
+points_again <- rgr_points(
+  study_area_xy,
+  n = 100,
+  inside_pct = 0.9,
+  outside_distance = 500,
+  seed = 123
+)
+
+identical(
+  sf::st_as_binary(sf::st_geometry(points)),
+  sf::st_as_binary(sf::st_geometry(points_again))
+)
+```
+
+# Generate a square tessellation
+
+Regular spatial units can be generated with `rgr_tessellate()`.
+
+```{r square-grid}
+square_grid <- rgr_tessellate(
+  study_area_xy,
+  cell_size = 500,
+  shape = "square",
+  clip = FALSE
+)
+
+square_grid
+```
+
+With `clip = FALSE`, cells intersecting the study area are retained in their
+regular form.
+
+```{r square-summary}
+rgr_summary(
+  square_grid
+)
+```
+
+To clip cells to the study-area boundary, use:
+
+```{r square-grid-clipped}
+square_grid_clipped <- rgr_tessellate(
+  study_area_xy,
+  cell_size = 500,
+  shape = "square",
+  clip = TRUE
+)
+
+square_grid_clipped
+```
+
+# Generate a hexagonal tessellation
+
+The same function generates hexagonal cells.
+
+```{r hex-grid}
+hex_grid <- rgr_tessellate(
+  study_area_xy,
+  cell_size = 500,
+  shape = "hex",
+  clip = FALSE
+)
+
+hex_grid
+```
+
+Square and hexagonal tessellations use the same output structure, making it
+straightforward to substitute one spatial support for another during
+development and testing.
+
+# Generate irregular polygons
+
+`rgr_polygons()` generates irregular polygon units within a study area.
+
+```{r irregular-polygons}
+polygons <- rgr_polygons(
+  study_area_xy,
+  target_n = 20,
+  cell_size = 100,
+  seed = 123
+)
+
+polygons
+```
+
+The generated polygons provide less regular spatial units for workflows where
+a square or hexagonal tessellation would be too artificial.
+
+```{r polygon-summary}
+rgr_summary(
+  polygons
+)
+```
+
+# Visual inspection
+
+The generated geometries can be inspected with standard `sf` plotting.
+
+```{r plot-points, fig.cap="Synthetic study area and generated points."}
+plot(
+  sf::st_geometry(study_area_xy),
+  main = "Synthetic points"
+)
+
+plot(
+  sf::st_geometry(points),
+  add = TRUE
+)
+```
+
+```{r plot-square, fig.cap="Synthetic square tessellation."}
+plot(
+  sf::st_geometry(square_grid),
+  main = "Square tessellation"
+)
+
+plot(
+  sf::st_geometry(study_area_xy),
+  add = TRUE,
+  lwd = 2
+)
+```
+
+```{r plot-hex, fig.cap="Synthetic hexagonal tessellation."}
+plot(
+  sf::st_geometry(hex_grid),
+  main = "Hexagonal tessellation"
+)
+
+plot(
+  sf::st_geometry(study_area_xy),
+  add = TRUE,
+  lwd = 2
+)
+```
+
+```{r plot-polygons, fig.cap="Synthetic irregular polygon units."}
+plot(
+  sf::st_geometry(polygons),
+  main = "Irregular polygons"
+)
+```
+
+# CRS-aware generation
+
+Synthetic XY coordinates are not the only supported workflow.
+
+`riskGenerateR` can also generate features using a defined coordinate
+reference system.
+
+The package includes example bounding boxes that can be used for reproducible
+examples.
+
+```{r bbox-example}
+ex <- rgr_bbox_example(
+  "wa_outback"
+)
+
+ex
+```
+
+The example can be passed directly to `rgr_study_area()`.
+
+```{r projected-study-area}
+study_area_projected <- rgr_study_area(
+  bbox = ex$bbox,
+  crs = ex$crs,
+  area_id = "wa_outback_example",
+  area_name = "WA Outback Example"
+)
+
+study_area_projected
+```
+
+Spatial features generated from this study area retain its spatial reference.
+
+```{r projected-points}
+projected_points <- rgr_points(
+  study_area_projected,
+  n = 50,
+  seed = 456
+)
+
+sf::st_crs(
+  projected_points
+)
+```
+
+The same principle applies to tessellations and irregular polygons.
+
+# Geometry generation and semantic context
+
+Geometry generation is deliberately separate from the meaning attached to
+the generated features.
+
+For example, these points are simply synthetic point geometries:
+
+```{r geometry-only}
+names(
+  points
+)
+```
+
+They can subsequently be given a contextual meaning with
+`rgr_add_attributes()`.
+
+```{r incident-context}
+incidents <- rgr_add_attributes(
+  points,
+  type = "incident",
+  seed = 456
+)
+
+names(
+  incidents
+)
+```
+
+The geometry has not changed. The additional fields describe a synthetic
+incident context.
+
+This separation is central to the package design:
+
+```text
+geometry
+    |
+    v
+contextual attributes
+    |
+    v
+synthetic analytical fixture
+    |
+    v
+downstream analysis
+```
+
+The contextual attribute workflow is covered in the
+**Building Synthetic Risk-Analysis Fixtures** vignette.
+
+# Summary
+
+The core spatial generators in `riskGenerateR` are:
+
+- `rgr_study_area()` for spatial extents
+- `rgr_points()` for random point features
+- `rgr_tessellate()` for square and hexagonal units
+- `rgr_polygons()` for irregular polygon units
+
+Together they provide reproducible spatial building blocks for testing,
+demonstrations, QA and downstream risk-related analytical development.
+
+Spatial generation remains separate from analytical risk calculation.

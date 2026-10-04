@@ -1,15 +1,15 @@
-test_that("rg_points handles geographic CRS inputs", {
+test_that("rgr_points handles geographic CRS inputs", {
 
-  ex <- rg_bbox_example("wa_outback")
+  ex <- rgr_bbox_example("wa_outback")
 
-  study_area <- rg_study_area(
+  study_area <- rgr_study_area(
     bbox = ex$bbox,
     crs = ex$crs
   )
 
   study_area_ll <- sf::st_transform(study_area, 7844)
 
-  pts <- rg_points(
+  pts <- rgr_points(
     study_area = study_area_ll,
     n = 100,
     inside_pct = 0.9,
@@ -35,18 +35,18 @@ test_that("rg_points handles geographic CRS inputs", {
   )
 })
 
-test_that("rg_polygons handles geographic CRS inputs", {
+test_that("rgr_polygons handles geographic CRS inputs", {
 
-  ex <- rg_bbox_example("wa_outback")
+  ex <- rgr_bbox_example("wa_outback")
 
-  study_area <- rg_study_area(
+  study_area <- rgr_study_area(
     bbox = ex$bbox,
     crs = ex$crs
   )
 
   study_area_ll <- sf::st_transform(study_area, 7844)
 
-  polys <- rg_polygons(
+  polys <- rgr_polygons(
     study_area = study_area_ll,
     target_n = 20,
     cell_size = 250,
@@ -75,18 +75,18 @@ test_that("rg_polygons handles geographic CRS inputs", {
   )
 })
 
-test_that("rg_polygons approximately reconciles area after CRS roundtrip", {
+test_that("rgr_polygons approximately reconciles area after CRS roundtrip", {
 
-  ex <- rg_bbox_example("wa_outback")
+  ex <- rgr_bbox_example("wa_outback")
 
-  study_area <- rg_study_area(
+  study_area <- rgr_study_area(
     bbox = ex$bbox,
     crs = ex$crs
   )
 
   study_area_ll <- sf::st_transform(study_area, 7844)
 
-  polys <- rg_polygons(
+  polys <- rgr_polygons(
     study_area = study_area_ll,
     target_n = 20,
     cell_size = 250,

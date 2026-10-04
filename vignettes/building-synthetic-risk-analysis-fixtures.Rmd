@@ -1,0 +1,506 @@
+---
+title: "Building Synthetic Risk-Analysis Fixtures"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Building Synthetic Risk-Analysis Fixtures}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>",
+  fig.width = 7,
+  fig.height = 5
+)
+```
+
+# Overview
+
+`riskGenerateR` generates reproducible synthetic spatial and contextual data
+for developing and testing risk-related analytical workflows.
+
+The package follows a deliberate separation of responsibilities:
+
+```text
+spatial geometry
+      |
+      v
+contextual attributes
+      |
+      v
+synthetic analytical fixture
+      |
+      v
+downstream analysis
+```
+
+`riskGenerateR` generates the fixture.
+
+It does not calculate or infer analytical risk outputs such as risk scores,
+risk classes, rates, expected counts or standardised ratios.
+
+This makes the generated data suitable for testing different analytical
+methods without embedding the analytical answer in the synthetic input.
+
+# Load the package
+
+```{r load-package}
+library(riskGenerateR)
+```
+
+# Build a common spatial environment
+
+A useful feature of the package is that geometry and semantic context are
+separate.
+
+Start with a neutral synthetic study area and a set of points.
+
+```{r spatial-environment}
+study_area <- rgr_study_area(
+  bbox = c(
+    xmin = 0,
+    ymin = 0,
+    xmax = 5000,
+    ymax = 4000
+  ),
+  area_id = "fixture_area",
+  area_name = "Synthetic Fixture Area"
+)
+
+points <- rgr_points(
+  study_area,
+  n = 100,
+  inside_pct = 1,
+  seed = 123
+)
+
+points
+```
+
+At this stage the points contain spatial-generation information, but they do
+not yet represent incidents, hazards, observations or other risk-related
+records.
+
+```{r point-fields}
+names(
+  points
+)
+```
+
+# Add contextual attributes
+
+`rgr_add_attributes()` assigns a synthetic semantic context to existing
+spatial features.
+
+The currently supported contexts are:
+
+- `hazard_assessment`
+- `incident`
+- `risk_register`
+- `observation`
+- `generic`
+
+The geometry is retained while contextual fields are added.
+
+# Hazard-assessment fixtures
+
+A hazard-assessment fixture represents plausible assessment inputs.
+
+```{r hazard-assessment}
+hazards <- rgr_add_attributes(
+  points,
+  type = "hazard_assessment",
+  seed = 101
+)
+
+names(
+  hazards
+)
+```
+
+The generated records include contextual fields describing matters such as
+the hazard, source, exposed group, existing controls, consequence and
+likelihood.
+
+```{r hazard-example}
+head(
+  sf::st_drop_geometry(hazards)
+)
+```
+
+These are synthetic assessment inputs.
+
+They are not converted by `riskGenerateR` into a calculated risk score or
+risk class.
+
+```{r hazard-summary}
+rgr_summary(
+  hazards
+)
+```
+
+# Incident fixtures
+
+The same point geometry can instead represent synthetic incidents.
+
+```{r incident}
+incidents <- rgr_add_attributes(
+  points,
+  type = "incident",
+  seed = 102
+)
+
+names(
+  incidents
+)
+```
+
+Incident records include contextual variables such as event type, hazard
+category, mechanism, activity, consequence and event time.
+
+```{r incident-example}
+head(
+  sf::st_drop_geometry(incidents)
+)
+```
+
+An `event_count` field is included as a descriptive count associated with
+each generated event record.
+
+```{r incident-summary}
+rgr_summary(
+  incidents
+)
+```
+
+# Risk-register fixtures
+
+Synthetic risk-register records can be generated from the same geometry.
+
+```{r risk-register}
+risk_register <- rgr_add_attributes(
+  points,
+  type = "risk_register",
+  seed = 103
+)
+
+names(
+  risk_register
+)
+```
+
+These records describe plausible risk-management information including
+objectives, risk categories, causes, risk events, consequences, existing
+controls, ownership and review status.
+
+```{r risk-register-example}
+head(
+  sf::st_drop_geometry(risk_register)
+)
+```
+
+The presence of risk-management terminology does not mean that the package
+has calculated risk.
+
+The generated records provide inputs that downstream workflows can assess,
+classify or analyse.
+
+```{r risk-register-summary}
+rgr_summary(
+  risk_register
+)
+```
+
+# Observation fixtures
+
+Observation records provide a lighter descriptive context suitable for field,
+inspection or monitoring-style workflows.
+
+```{r observation}
+observations <- rgr_add_attributes(
+  points,
+  type = "observation",
+  seed = 104
+)
+
+names(
+  observations
+)
+```
+
+Generated fields describe the observation, condition, issue, descriptive
+severity indicator, required action, action status and observation date.
+
+```{r observation-example}
+head(
+  sf::st_drop_geometry(observations)
+)
+```
+
+```{r observation-summary}
+rgr_summary(
+  observations
+)
+```
+
+# Generic analytical fixtures
+
+Not every test requires domain-specific terminology.
+
+The `generic` context provides neutral synthetic variables that can be used
+for general analytical development.
+
+```{r generic}
+generic <- rgr_add_attributes(
+  points,
+  type = "generic",
+  seed = 105
+)
+
+names(
+  generic
+)
+```
+
+```{r generic-example}
+head(
+  sf::st_drop_geometry(generic)
+)
+```
+
+This is useful when testing grouping, filtering, summarisation or other
+general-purpose workflows without imposing a particular risk-management
+meaning.
+
+```{r generic-summary}
+rgr_summary(
+  generic
+)
+```
+
+# Geometry does not determine meaning
+
+The attribute context is independent of geometry type.
+
+For example, create a square tessellation:
+
+```{r grid}
+grid <- rgr_tessellate(
+  study_area,
+  cell_size = 500,
+  shape = "square",
+  clip = TRUE
+)
+```
+
+The cells can then receive generic contextual attributes.
+
+```{r grid-attributes}
+grid_attributes <- rgr_add_attributes(
+  grid,
+  type = "generic",
+  seed = 201
+)
+
+rgr_summary(
+  grid_attributes
+)
+```
+
+This separation allows the same geometry-generation tools to support many
+different testing scenarios.
+
+# Generate a complete scenario
+
+For common development and demonstration workflows, `rgr_scenario()` combines
+the spatial and contextual generators into a reproducible fixture.
+
+```{r basic-scenario}
+scenario <- rgr_scenario(
+  scenario = "basic",
+  bbox_name = "wa_outback",
+  n_points = 100,
+  inside_pct = 0.9,
+  cell_size = 500,
+  seed = 123
+)
+
+names(
+  scenario
+)
+```
+
+The basic scenario provides a study area, generated spatial features and
+contextual versions of those features.
+
+The incident fixture can be inspected directly:
+
+```{r scenario-incidents}
+rgr_summary(
+  scenario$incidents
+)
+```
+
+Likewise, contextual attributes associated with the tessellated spatial units
+can be inspected independently.
+
+```{r scenario-grid}
+rgr_summary(
+  scenario$grid_attributes
+)
+```
+
+```{r scenario-hex}
+rgr_summary(
+  scenario$hex_attributes
+)
+```
+
+# Alternative scenario structures
+
+`rgr_scenario()` can also generate more focused spatial configurations.
+
+A square-grid scenario:
+
+```{r square-scenario}
+square_scenario <- rgr_scenario(
+  scenario = "square_grid",
+  seed = 123
+)
+
+names(
+  square_scenario
+)
+```
+
+A hexagonal-grid scenario:
+
+```{r hex-scenario}
+hex_scenario <- rgr_scenario(
+  scenario = "hex_grid",
+  seed = 123
+)
+
+names(
+  hex_scenario
+)
+```
+
+And an irregular-polygon scenario:
+
+```{r polygon-scenario}
+polygon_scenario <- rgr_scenario(
+  scenario = "irregular_polygons",
+  seed = 123
+)
+
+names(
+  polygon_scenario
+)
+```
+
+These provide reproducible starting points for testing workflows that require
+different forms of spatial support.
+
+# Reproducibility
+
+Synthetic fixtures are often most useful when a failing test or analytical
+example can be recreated exactly.
+
+Supplying the same seed produces the same scenario.
+
+```{r reproducibility}
+scenario_again <- rgr_scenario(
+  scenario = "basic",
+  bbox_name = "wa_outback",
+  n_points = 100,
+  inside_pct = 0.9,
+  cell_size = 500,
+  seed = 123
+)
+
+identical(
+  sf::st_as_binary(sf::st_geometry(scenario$points)),
+  sf::st_as_binary(sf::st_geometry(scenario_again$points))
+)
+```
+
+Contextual generation is also reproducible when the same seed and input are
+used.
+
+# Inspect before analysing
+
+`rgr_summary()` provides a compact QA and descriptive view of generated
+objects.
+
+```{r summary-example}
+rgr_summary(
+  scenario$incidents
+)
+```
+
+Its role is inspection rather than analytical inference.
+
+Depending on the generated context, it can report:
+
+- row and column counts
+- geometry types
+- CRS information
+- geometry validity
+- empty geometries
+- attribute-context counts
+- descriptive event or generic counts
+- area summaries
+- contextual category distributions
+
+It intentionally does not calculate risk metrics.
+
+# Package boundary
+
+A typical workflow can therefore be thought of as:
+
+```text
+riskGenerateR
+    |
+    +-- generate study area
+    +-- generate spatial features
+    +-- generate contextual attributes
+    +-- compose reproducible scenarios
+    +-- perform fixture QA
+    |
+    v
+synthetic analytical fixture
+    |
+    v
+downstream package or application
+    |
+    +-- spatial joins
+    +-- aggregation
+    +-- rates
+    +-- statistical modelling
+    +-- risk analysis
+    +-- decision support
+```
+
+This boundary is intentional.
+
+It allows `riskGenerateR` to remain a reusable synthetic-data generator while
+different downstream tools determine how those data should be analysed.
+
+# Summary
+
+`riskGenerateR` provides two complementary layers:
+
+1. spatial generation through functions such as `rgr_study_area()`,
+   `rgr_points()`, `rgr_tessellate()` and `rgr_polygons()`; and
+2. contextual generation through `rgr_add_attributes()` and
+   `rgr_scenario()`.
+
+Together these functions create reproducible synthetic fixtures for
+risk-related software development, testing, demonstrations and QA.
+
+The package generates plausible inputs.
+
+The analytical interpretation remains downstream.
